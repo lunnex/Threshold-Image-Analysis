@@ -3,6 +3,9 @@ import java.util.List;
 
 import org.opencv.core.Core;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
 //import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -54,35 +57,42 @@ public class Processing {
 	public List<MatOfPoint> findContour(Mat mat)
 	{
 		List<MatOfPoint> matOfPoint = new ArrayList<MatOfPoint>();
-		List<MatOfPoint> biggestContours = new ArrayList<MatOfPoint>();
-		List<MatOfPoint> biggestContour = new ArrayList<MatOfPoint>();
+		List<MatOfPoint> ListForBiggestCoutour = new ArrayList<MatOfPoint>();
+		MatOfPoint biggestContour = null; 
 		Mat hierachy = new Mat();
 		
 		Mat dst = new Mat(mat.rows(), mat.cols(), mat.type());
         mat.copyTo(dst);
+        
+        
 
 
 		Imgproc.findContours(dst, matOfPoint, hierachy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 		
-		double contourArea = 0;
-		for (int i = 0; i < matOfPoint.size(); i++) {
-			if (Imgproc.contourArea(matOfPoint.get(i)) > contourArea) {
-				biggestContours.add(matOfPoint.get(i));
-				contourArea = Imgproc.contourArea(matOfPoint.get(i));
+		double smallestArea = 0;
+		for(MatOfPoint contour : matOfPoint) {
+			if (Imgproc.arcLength(new MatOfPoint2f(contour.toArray()), false) > smallestArea) {
+				smallestArea = Imgproc.arcLength(new MatOfPoint2f(contour.toArray()), false);
+				biggestContour = contour;
 			}
 		}
-		try {
-			biggestContour.add(biggestContours.get(biggestContours.size()-1));
+		if (biggestContour != null) {
+			ListForBiggestCoutour.add(biggestContour);
 		}
-		catch (Exception e) {
-			System.out.println("Контуры не найдены");
+		else {
+			System.out.println("No contour");
 		}
-		//System.out.println(qqq.channels() + " " + qqq.depth());
-		return biggestContour;
+		
+		
+		return ListForBiggestCoutour;
 	}
 	
 	public Mat contour(Mat image, List<MatOfPoint>matOfCountors) {
-		Imgproc.drawContours(image, matOfCountors, -1, new Scalar(1,0,0), 5);
+		Rect rectangle = Imgproc.boundingRect(matOfCountors.get(0));
+		Imgproc.rectangle(image, new Point(rectangle.x, rectangle.y),
+				 new Point(rectangle.x + rectangle.width - 1, rectangle.y + rectangle.height - 1),
+				 new Scalar(0,255,0)); 
+		Imgproc.drawContours(image, matOfCountors, -1, new Scalar(255,0,0), 5);
 		return image;
 	}
 

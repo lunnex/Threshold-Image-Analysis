@@ -1,6 +1,7 @@
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -14,17 +15,19 @@ import javafx.scene.image.WritableImage;
 public class GetCapture {
 	
 	private Mat matrix;
+	private Mat theresh;
+	private Mat boundaries;
 	VideoCapture capture = new VideoCapture(0);
 	Processing proc = new Processing();
 	double hmin, smin, vmin, hmax, smax, vmax;
 	
-	public WritableImage getFrame() {
-		return(frame(capture));
+	public WritableImage getFrame(int i) {
+		return(frame(capture).get(i));
 	}
 
-	public WritableImage frame(VideoCapture capture)
+	public ArrayList<WritableImage> frame(VideoCapture capture)
 	   {
-		   WritableImage WritableImage = null;
+		ArrayList<WritableImage> images = new ArrayList<WritableImage>();
 		   //Processing proc = new Processing();
 		// Читаем кадр с камеры
 		   Mat matrix = new Mat();
@@ -40,7 +43,11 @@ public class GetCapture {
 				   matrix.copyTo(original);
 				   matrix = proc.makeHSV(matrix);
 				   matrix = proc.theresholding(matrix, hmin, smin, vmin, hmax, smax, vmax);
+				   Mat theresh = new Mat();
+				   matrix.copyTo(theresh);
 				   matrix = proc.findBoundary(matrix);
+				   Mat boundaries = new Mat();
+				   matrix.copyTo(boundaries);
 				   original = proc.contour(original, proc.findContour(matrix));
 
 		           // Создаем буфферизированное изображение 
@@ -55,10 +62,36 @@ public class GetCapture {
 		           this.matrix = matrix;
 		            
 		            // Создаём Writable Image
-		           WritableImage = SwingFXUtils.toFXImage(image, null);
+		           images.add(0, SwingFXUtils.toFXImage(image, null));
+		           
+		        // Создаем буфферизированное изображение 
+		           BufferedImage thereshimage = new BufferedImage(theresh.width(), theresh.height(), BufferedImage.TYPE_3BYTE_BGR);
+		            
+		            
+		           WritableRaster thereshraster = thereshimage.getRaster();
+		           DataBufferByte thereshdataBuffer = (DataBufferByte) thereshraster.getDataBuffer();
+		           byte[] thereshdata = thereshdataBuffer.getData();
+		           theresh.get(0, 0, thereshdata);
+		           //matrix.get(0, 0, data);
+		           this.theresh = theresh;
+		           
+		           images.add(1, SwingFXUtils.toFXImage(thereshimage, null));
+		           
+		        // Создаем буфферизированное изображение 
+		           BufferedImage boudariesimage = new BufferedImage(boundaries.width(), boundaries.height(), BufferedImage.TYPE_3BYTE_BGR);
+		            
+		            
+		           WritableRaster boudariesraster = boudariesimage.getRaster();
+		           DataBufferByte boudariesdataBuffer = (DataBufferByte) boudariesraster.getDataBuffer();
+		           byte[] boudariesdata = boudariesdataBuffer.getData();
+		           boundaries.get(0, 0, boudariesdata);
+		           //matrix.get(0, 0, data);
+		           this.boundaries = boundaries;
+		           
+		           images.add(2, SwingFXUtils.toFXImage(boudariesimage, null));
 		         }
 		     }
-		  return WritableImage;
+		  return images;
 	   }
 	
 	public Mat getMatrix()
@@ -72,11 +105,11 @@ public class GetCapture {
 	}
 	
 	   
-	public WritableImage getVideo() 
-	{
-		WritableImage writableImage = null;
-		writableImage = frame(capture);
-	    return writableImage;
+	//public WritableImage getVideo() 
+	//{
+	//	WritableImage writableImage = null;
+	//	writableImage = frame(capture);
+	//    return writableImage;
 
-	}
+	//}
 }

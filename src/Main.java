@@ -29,6 +29,8 @@ public class Main extends Application {
 	   GetCapture gp = new GetCapture();
 
 	   ImageView imageView = new ImageView("blob.jpg");
+	   ImageView imageTheresh = new ImageView("blob.jpg");
+	   ImageView imageBoundaries = new ImageView("blob.jpg");
 	   Slider sliderHMin = new Slider(0,360,94);
 	   Slider sliderSMin = new Slider(0,1,0);
 	   Slider sliderVMin = new Slider(0,1,0.3);
@@ -72,7 +74,16 @@ public class Main extends Application {
 	   vmaxLabel.setLayoutX(370);
 	   vmaxLabel.setLayoutY(600);
 	   
-	   Thread th = new Thread(() -> {
+	   imageView.setLayoutX(0);
+	   imageView.setLayoutY(0);
+	   
+	   imageTheresh.setLayoutX(0);
+	   imageTheresh.setLayoutY(640);
+	   
+	   imageBoundaries.setLayoutX(650);
+	   imageBoundaries.setLayoutY(0);
+	   
+	   Thread mainview = new Thread(() -> {
 		   while(true) 
 		   {
 			   gp.hmin = sliderHMin.getValue();
@@ -81,8 +92,12 @@ public class Main extends Application {
 			   gp.hmax = sliderHMax.getValue();
 			   gp.smax = sliderSMax.getValue();
 			   gp.vmax = sliderVMax.getValue();
-			   WritableImage writableImage = gp.getFrame();
+			   WritableImage writableImage = gp.getFrame(0);
+			   WritableImage writableImageTheresh = gp.getFrame(1);
+			   WritableImage writableImageBoundaries = gp.getFrame(2);
 			   imageView.setImage(writableImage);
+			   imageTheresh.setImage(writableImageTheresh);
+			   imageBoundaries.setImage(writableImageBoundaries);
 		   }
 	   });
 	   
@@ -90,16 +105,21 @@ public class Main extends Application {
       imageView.setFitHeight(480);
       imageView.setFitWidth(640);
       
+      imageTheresh.setFitHeight(480);
+      imageTheresh.setFitWidth(640);
+      
+      imageBoundaries.setFitHeight(480);
+      imageBoundaries.setFitHeight(640);
 
 
       // Создаём объект Group
-      Group root = new Group(imageView, sliderHMin, sliderSMin, sliderVMin, sliderHMax, sliderSMax, sliderVMax,
+      Group root = new Group(imageView, imageTheresh, imageBoundaries, sliderHMin, sliderSMin, sliderVMin, sliderHMax, sliderSMax, sliderVMax,
     		  hminLabel, sminLabel, vminLabel, hmaxLabel, smaxLabel, vmaxLabel);
 
       
 
       // Создаём сцену
-      Scene scene = new Scene(root, 640, 640);
+      Scene scene = new Scene(root, 1400, 1080);
       
 
       // Заголовок окна
@@ -112,7 +132,7 @@ public class Main extends Application {
       stage.show();
       
       // Поток, получающий изображение с камеры
-      th.start();
+      mainview.start();
 
    }
 
