@@ -1,17 +1,14 @@
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 
 import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import org.opencv.core.Core;
@@ -19,82 +16,107 @@ import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 
-
-/*—ÓÁ‰‡ÂÏ ÓÚ‰ÂÎ¸Ì˚È ÔÓÚÓÍ ‰Îˇ ‡·ÓÚ˚ Í‡ÏÂ˚*/
-class CamRealization implements Runnable{
-	WritableImage writableImage = null;
-	Text text = new Text("hgvgg"); 
-	int i = 0;
-
-	public void run(){
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME); // «‡„ÛÊ‡ÂÏ ·Ë·ÎÚÓÚÂÍÛ
-	    VideoCapture camera = new VideoCapture(0);
-		   
-		if(!camera.isOpened()) {
-			System.out.println("œÓ·ÎÂÏ˚ Ò Í‡ÏÂÓÈ");
-	    }
-	    else 
-	    {
-	    	Mat frame = new Mat();
-	    	while(true) {
-	    		if (camera.read(frame)) {
-	    			BufferedImage image = new BufferedImage(frame.width(), frame.height(), BufferedImage.TYPE_3BYTE_BGR);
-	    			writableImage = SwingFXUtils.toFXImage(image, null);
-	    			System.out.println("Captured Frame Width " + frame.width() + " Height " + frame.height());
-	    			text.setText(String.valueOf(i));
-	    			i++;
-	    		}
-	    	}
-	    }
-		   camera.release();
-	}
-}
-
-public class Main extends Application{
-	CamRealization camRealization = new CamRealization();
-	
-//public void run() {
-		
-	//}
-
+public class Main extends Application {
    @Override
    public void start(Stage stage) throws FileNotFoundException, IOException {
 	   
-	   CamRealization camRealization = new CamRealization();
-	   Thread camThread = new Thread(camRealization);
-	   camThread.start();
+	// –ó–∞–≥—Ä—É–∂–∞–µ–º –±–∏–±–ª–∏–æ—Ç–µ–∫—É
+	   System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
 	   
-	   try {
-		   ImageView imageView = new ImageView(camRealization.writableImage);
-		   imageView.setFitHeight(600);
-		   imageView.setFitWidth(400);
-		   
-	   }
-	   catch (Exception e) {
-		   
-	   }
 	   
+      // –ó–∞—Ö–≤–∞—Ç —Å–Ω–∏–º–∫–∞ —Å –∫–∞–º–µ—Ä—ã
+	   Processing proc = new Processing();
+	   GetCapture gp = new GetCapture();
 
+	   ImageView imageView = new ImageView("blob.jpg");
+	   Slider sliderHMin = new Slider(0,360,94);
+	   Slider sliderSMin = new Slider(0,1,0);
+	   Slider sliderVMin = new Slider(0,1,0.3);
+	   Slider sliderHMax = new Slider(0,360,182);
+	   Slider sliderSMax = new Slider(0,1,0.23);
+	   Slider sliderVMax = new Slider(0,1,1);
 	   
-	   camRealization.text.setLayoutY(80);    // ÛÒÚ‡ÌÓ‚Í‡ ÔÓÎÓÊÂÌËˇ Ì‡‰ÔËÒË ÔÓ ÓÒË Y
-	   camRealization.text.setLayoutX(80);  
+	   Label hminLabel = new Label("Hmin");
+	   Label sminLabel = new Label("Smin");
+	   Label vminLabel = new Label("Vmin");
+	   Label hmaxLabel = new Label("Hmax");
+	   Label smaxLabel = new Label("Smax");
+	   Label vmaxLabel = new Label("Vmax");
+	   sliderHMin.setLayoutX(200);
+	   sliderHMin.setLayoutY(500);
+	   hminLabel.setLayoutX(170);
+	   hminLabel.setLayoutY(500);
 	   
-	   Group root = new Group(camRealization.text);
-	   Scene scene = new Scene(root);
-	   stage.setTitle("POWER OF JAVAFX & OPENCV");
-	   stage.setWidth(600);
-	   stage.setHeight(400);
-	   stage.setScene(scene);
-	   stage.show();
+	   sliderSMin.setLayoutX(200);
+	   sliderSMin.setLayoutY(550);
+	   sminLabel.setLayoutX(170);
+	   sminLabel.setLayoutY(550);
 	   
-   }
+	   sliderVMin.setLayoutX(200);
+	   sliderVMin.setLayoutY(600);
+	   vminLabel.setLayoutX(170);
+	   vminLabel.setLayoutY(600);
+	   
+	   sliderHMax.setLayoutX(400);
+	   sliderHMax.setLayoutY(500);
+	   hmaxLabel.setLayoutX(370);
+	   hmaxLabel.setLayoutY(500);
+	   
+	   sliderSMax.setLayoutX(400);
+	   sliderSMax.setLayoutY(550);
+	   smaxLabel.setLayoutX(370);
+	   smaxLabel.setLayoutY(550);
+	   
+	   sliderVMax.setLayoutX(400);
+	   sliderVMax.setLayoutY(600);
+	   vmaxLabel.setLayoutX(370);
+	   vmaxLabel.setLayoutY(600);
+	   
+	   Thread th = new Thread(() -> {
+		   while(true) 
+		   {
+			   gp.hmin = sliderHMin.getValue();
+			   gp.smin = sliderSMin.getValue();
+			   gp.vmin = sliderVMin.getValue();
+			   gp.hmax = sliderHMax.getValue();
+			   gp.smax = sliderSMax.getValue();
+			   gp.vmax = sliderVMax.getValue();
+			   WritableImage writableImage = gp.getFrame();
+			   imageView.setImage(writableImage);
+		   }
+	   });
+	   
+      // –†–∞–∑–º–µ—Ä—ã imageView
+      imageView.setFitHeight(480);
+      imageView.setFitWidth(640);
       
 
-   public static void main(String args[]) {
-	   
 
-       
-       
-	   launch(args);
+      // –°–æ–∑–¥–∞—ë–º –æ–±—ä–µ–∫—Ç Group
+      Group root = new Group(imageView, sliderHMin, sliderSMin, sliderVMin, sliderHMax, sliderSMax, sliderVMax,
+    		  hminLabel, sminLabel, vminLabel, hmaxLabel, smaxLabel, vmaxLabel);
+
+      
+
+      // –°–æ–∑–¥–∞—ë–º —Å—Ü–µ–Ω—É
+      Scene scene = new Scene(root, 640, 640);
+      
+
+      // –ó–∞–≥–æ–ª–æ–≤–æ–∫ –æ–∫–Ω–∞
+      stage.setTitle("JavaFX + OpenCV");
+
+      // –î–æ–±–∞–≤–ª—è–µ–º —Å—Ü–µ–Ω—É
+      stage.setScene(scene);
+
+      // –ü–æ–∫–∞–∑—ã–≤–∞–µ–º —Å—Ü–µ–Ω—É
+      stage.show();
+      
+      // –ü–æ—Ç–æ–∫, –ø–æ–ª—É—á–∞—é—â–∏–π –∏–∑–æ–±—Ä–∞–∂–µ–Ω–∏–µ —Å –∫–∞–º–µ—Ä—ã
+      th.start();
+
+   }
+
+   public static void main(String args[]) {
+      launch(args);
    }
 }

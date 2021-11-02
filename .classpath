@@ -19,5 +19,18 @@
 	<classpathentry kind="lib" path="C:/Program Files/javafx-sdk-17.0.0.1/lib/javafx.swing.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/javafx-sdk-17.0.0.1/lib/javafx.web.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/javafx-sdk-17.0.0.1/lib/javafx-swt.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Desktop/javacv-platform-1.5.6-bin/javacv.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Desktop/javacv-platform-1.5.6-bin/javacv-platform.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Desktop/javacv-platform-1.5.6-bin/opencv.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Desktop/javacv-platform-1.5.6-bin/opencv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/opencv/build/java/opencv-3416.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacpp.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv-android-arm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv-linux-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv-linux-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv-macosx-x86_64.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv-windows-x86.jar"/>
+	<classpathentry kind="lib" path="C:/Users/ilyak/Downloads/javacv-bin/javacv-windows-x86_64.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
