@@ -26,7 +26,7 @@ public class Processing {
 		return HSVMatr;
 	}
 	
-	public Mat theresholding(Mat NonTheresholded, double hmin, double smin,  double vmin, double hmax, double smax, double vmax)
+	public Mat theresholding(Mat NonTheresholded, int hmin, int smin,  double vmin, double hmax, double smax, double vmax)
 	{	
 		double hLow = hmin;
 		double sLow = 255 * smin;
@@ -37,11 +37,35 @@ public class Processing {
 		
 		//System.out.println(hLow + " " + sLow + " " + vLow + " " + hHigh + " " + sHigh + " " + vHigh);
 		Mat theresholded = new Mat();
- 		Mat kernel = new Mat(new Size(5, 5), CvType.CV_8U, new Scalar(255));
+ 		Mat kernel = new Mat(new Size(10, 10), CvType.CV_8U, new Scalar(255));
+ 		
+ 		 Mat mask = new Mat();
+ 		//NonTheresholded.copyTo(mask);
+ 		
  		 
- 		Core.inRange(NonTheresholded, new Scalar(hLow, sLow, vLow, 0), new Scalar(hHigh, sHigh, vHigh, 0), theresholded);
-		Imgproc.morphologyEx(theresholded, theresholded, 2, kernel);
-		//System.out.println(theresholded.channels() + " " + theresholded.depth());
+ 		Imgproc.cvtColor(NonTheresholded, NonTheresholded, Imgproc.COLOR_BGR2GRAY);
+ 		NonTheresholded.copyTo(mask);
+ 		
+ 		Mat dilateElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(24, 24));
+ 		 Mat erodeElement = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12));
+
+ 		 Imgproc.erode(mask, NonTheresholded, erodeElement);
+ 		 Imgproc.erode(mask, NonTheresholded, erodeElement);
+
+ 		 Imgproc.dilate(mask, NonTheresholded, dilateElement);
+ 		 Imgproc.dilate(mask, NonTheresholded, dilateElement);
+ 		//Imgproc.dilate(mask, mask, kernel);
+ 		Core.subtract(NonTheresholded, mask, NonTheresholded);
+ 		
+ 		
+ 		
+
+ 		Imgproc.adaptiveThreshold(NonTheresholded,theresholded,255,  Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, hmin, smin);
+
+ 		//Imgproc.dilate(theresholded, theresholded, kernel);
+ 		 //Imgproc.erode(theresholded, theresholded, kernel);
+
+ 		
 		
 		return theresholded;
 	}
@@ -64,10 +88,12 @@ public class Processing {
 		Mat dst = new Mat(mat.rows(), mat.cols(), mat.type());
         mat.copyTo(dst);
         
-        
+       
 
 
-		Imgproc.findContours(dst, matOfPoint, hierachy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(dst, matOfPoint, hierachy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_TC89_KCOS);
+		
+		
 		
 		double smallestArea = 0;
 		for(MatOfPoint contour : matOfPoint) {
@@ -80,19 +106,24 @@ public class Processing {
 			ListForBiggestCoutour.add(biggestContour);
 		}
 		else {
-			System.out.println("No contour");
 		}
 		
+
+
 		
 		return ListForBiggestCoutour;
 	}
 	
 	public Mat contour(Mat image, List<MatOfPoint>matOfCountors) {
-		Rect rectangle = Imgproc.boundingRect(matOfCountors.get(0));
-		Imgproc.rectangle(image, new Point(rectangle.x, rectangle.y),
-				 new Point(rectangle.x + rectangle.width - 1, rectangle.y + rectangle.height - 1),
-				 new Scalar(0,255,0)); 
-		Imgproc.drawContours(image, matOfCountors, -1, new Scalar(255,0,0), 5);
+		try {
+			Rect rectangle = Imgproc.boundingRect(matOfCountors.get(0));
+			Imgproc.rectangle(image, new Point(rectangle.x, rectangle.y),
+					 new Point(rectangle.x + rectangle.width - 1, rectangle.y + rectangle.height - 1),
+					 new Scalar(0,255,0)); 
+			Imgproc.drawContours(image, matOfCountors, -1, new Scalar(255,0,0), 5);
+		}
+		catch (Exception e) {
+		}
 		return image;
 	}
 
